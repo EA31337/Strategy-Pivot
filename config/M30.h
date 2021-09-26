@@ -4,12 +4,12 @@
  */
 
 // Defines indicator's parameter values for the given pair symbol and timeframe.
-struct Indi_Demo_Params_M30 : DemoIndiParams {
-  Indi_Demo_Params_M30() : DemoIndiParams(indi_demo_defaults, PERIOD_M30) { shift = 0; }
-} indi_demo_m30;
+struct Indi_Pivot_Params_M30 : PivotIndiParams {
+  Indi_Pivot_Params_M30() : PivotIndiParams(indi_pivot_defaults, PERIOD_M30) { shift = 0; }
+} indi_pivot_m30;
 
 // Defines strategy's parameter values for the given pair symbol and timeframe.
-struct Stg_Demo_Params_M30 : StgParams {
+struct Stg_Pivot_Params_M30 : StgParams {
   // Struct constructor.
-  Stg_Demo_Params_M30() : StgParams(stg_demo_defaults) {}
-} stg_demo_m30;
+  Stg_Pivot_Params_M30() : StgParams(stg_pivot_defaults) {}
+} stg_pivot_m30;

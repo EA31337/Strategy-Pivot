@@ -6,8 +6,8 @@
 
 /**
  * @file
- * Implements Demo strategy.
+ * Implements Pivot strategy.
  */
 
 // Includes the main code.
-#include "Stg_Demo.mq5"
+#include "Stg_Pivot.mq5"

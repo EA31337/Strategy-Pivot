@@ -44,7 +44,9 @@ enum INDI_PIVOT_MODE {
 
 // Defines struct with default user indicator values.
 struct Indi_Pivot_Params_Defaults : IndiPivotParams {
-  Indi_Pivot_Params_Defaults() : IndiPivotParams(::Pivot_Indi_Pivot_Type, ::Pivot_Indi_Pivot_Shift, PERIOD_CURRENT) {}
+  Indi_Pivot_Params_Defaults() : IndiPivotParams(::Pivot_Indi_Pivot_Type, ::Pivot_Indi_Pivot_Shift) {
+    SetDataSourceType(::Pivot_Indi_Pivot_SourceType);
+  }
 };
 
 // Defines struct with default user strategy values.

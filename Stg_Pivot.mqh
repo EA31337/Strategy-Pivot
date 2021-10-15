@@ -23,9 +23,9 @@ INPUT float Pivot_OrderCloseLoss = 80;        // Order close loss
 INPUT float Pivot_OrderCloseProfit = 80;      // Order close profit
 INPUT int Pivot_OrderCloseTime = -30;         // Order close time in mins (>0) or bars (<0)
 INPUT_GROUP("Pivot strategy: Pivot indicator params");
-INPUT ENUM_PP_TYPE Pivot_Indi_Pivot_Type = PP_TOM_DEMARK;                    // Calculation method
-INPUT int Pivot_Indi_Pivot_Shift = 1;                                        // Shift
-INPUT ENUM_IDATA_SOURCE_TYPE Pivot_Indi_Pivot_SourceType = IDATA_INDICATOR;  // Source type
+INPUT ENUM_PP_TYPE Pivot_Indi_Pivot_Type = PP_TOM_DEMARK;                  // Calculation method
+INPUT int Pivot_Indi_Pivot_Shift = 1;                                      // Shift
+INPUT ENUM_IDATA_SOURCE_TYPE Pivot_Indi_Pivot_SourceType = IDATA_BUILTIN;  // Source type
 
 // Enums.
 enum INDI_PIVOT_MODE {

@@ -112,25 +112,27 @@ class Stg_Pivot : public Strategy {
       // Returns false when indicator data is not valid.
       return false;
     }
-    IndicatorSignal _signals = _indi.GetSignals(4, _shift);
-    float _pp = _indi[_shift].GetValue<float>((int)INDI_PIVOT_PP);
-    float _r1 = _indi[_shift].GetValue<float>((int)INDI_PIVOT_R1);
-    float _r2 = _indi[_shift].GetValue<float>((int)INDI_PIVOT_R2);
-    float _r3 = _indi[_shift].GetValue<float>((int)INDI_PIVOT_R3);
-    float _r4 = _indi[_shift].GetValue<float>((int)INDI_PIVOT_R4);
-    float _s1 = _indi[_shift].GetValue<float>((int)INDI_PIVOT_S1);
-    float _s2 = _indi[_shift].GetValue<float>((int)INDI_PIVOT_S2);
-    float _s3 = _indi[_shift].GetValue<float>((int)INDI_PIVOT_S3);
-    float _s4 = _indi[_shift].GetValue<float>((int)INDI_PIVOT_S4);
+    // IndicatorSignal _signals = _indi.GetSignals(4, _shift);
+    IndicatorDataEntry _entry = _indi[_shift];
+    MqlTick _tick = _indi.GetLastTick();
+    float _pp = _entry.GetValue<float>((int)INDI_PIVOT_PP);
+    float _r1 = _entry.GetValue<float>((int)INDI_PIVOT_R1);
+    float _r2 = _entry.GetValue<float>((int)INDI_PIVOT_R2);
+    float _r3 = _entry.GetValue<float>((int)INDI_PIVOT_R3);
+    float _r4 = _entry.GetValue<float>((int)INDI_PIVOT_R4);
+    float _s1 = _entry.GetValue<float>((int)INDI_PIVOT_S1);
+    float _s2 = _entry.GetValue<float>((int)INDI_PIVOT_S2);
+    float _s3 = _entry.GetValue<float>((int)INDI_PIVOT_S3);
+    float _s4 = _entry.GetValue<float>((int)INDI_PIVOT_S4);
     switch (_cmd) {
       case ORDER_TYPE_BUY:
         // Buy signal.
         //_result &= Close[_shift] < _pp && Close[_shift] > _s1;
         //_result &= Close[_shift] < _s1 && Close[_shift] > _s2;
         //_result &= _indi.Ask() < _s2 && _indi.Ask() > _s3;
-        _result &= (_indi.Ask() < _s1 - ((_s1 - _s2) / 2) && _indi.Ask() > _s2) ||
-                   (_indi.Ask() < _s2 - ((_s2 - _s3) / 2) && _indi.Ask() > _s3) ||
-                   (_indi.Ask() < _s3 - ((_s3 - _s4) / 2) && _indi.Ask() > _s4);
+        _result &= (_tick.ask < _s1 - ((_s1 - _s2) / 2) && _tick.ask > _s2) ||
+                   (_tick.ask < _s2 - ((_s2 - _s3) / 2) && _tick.ask > _s3) ||
+                   (_tick.ask < _s3 - ((_s3 - _s4) / 2) && _tick.ask > _s4);
         //_result &= _indi.IsIncreasing(1, 0, _shift);
         _result &= _indi.IsIncByPct(_level, (int)INDI_PIVOT_PP, _shift, 1);
         //_result &= _method > 0 ? _signals.CheckSignals(_method) : _signals.CheckSignalsAll(-_method);

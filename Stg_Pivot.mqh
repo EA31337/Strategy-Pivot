@@ -42,13 +42,6 @@ enum INDI_PIVOT_MODE {
 
 // Structs.
 
-// Defines struct with default user indicator values.
-struct Indi_Pivot_Params_Defaults : IndiPivotParams {
-  Indi_Pivot_Params_Defaults() : IndiPivotParams(::Pivot_Indi_Pivot_Type, ::Pivot_Indi_Pivot_Shift) {
-    SetDataSourceType(::Pivot_Indi_Pivot_SourceType);
-  }
-};
-
 // Defines struct with default user strategy values.
 struct Stg_Pivot_Params_Defaults : StgParams {
   Stg_Pivot_Params_Defaults()
@@ -100,8 +93,8 @@ class Stg_Pivot : public Strategy {
    * Event on strategy's init.
    */
   void OnInit() {
-    Indi_Pivot_Params_Defaults _indi_pivot_defaults;
-    IndiPivotParams _indi_params(_indi_pivot_defaults, Get<ENUM_TIMEFRAMES>(STRAT_PARAM_TF));
+    IndiPivotParams _indi_params(::Pivot_Indi_Pivot_Type, ::Pivot_Indi_Pivot_Shift);
+    _indi_params.SetTf(Get<ENUM_TIMEFRAMES>(STRAT_PARAM_TF));
     SetIndicator(new Indi_Pivot(_indi_params));
   }
 

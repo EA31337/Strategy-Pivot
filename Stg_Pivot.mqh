@@ -82,13 +82,9 @@ class Stg_Pivot : public Strategy {
 
   static Stg_Pivot *Init(ENUM_TIMEFRAMES _tf = NULL) {
     // Initialize strategy initial values.
-    Indi_Pivot_Params_Defaults _indi_pivot_defaults;
-    IndiPivotParams _indi_params(_indi_pivot_defaults, _tf);
     Stg_Pivot_Params_Defaults stg_pivot_defaults;
     StgParams _stg_params(stg_pivot_defaults);
 #ifdef __config__
-    SetParamsByTf<PivotIndiParams>(_indi_params, _tf, indi_pivot_m1, indi_pivot_m5, indi_pivot_m15, indi_pivot_m30,
-                                   indi_pivot_h1, indi_pivot_h4, indi_pivot_h8);
     SetParamsByTf<StgParams>(_stg_params, _tf, stg_pivot_m1, stg_pivot_m5, stg_pivot_m15, stg_pivot_m30, stg_pivot_h1,
                              stg_pivot_h4, stg_pivot_h8);
 #endif
@@ -97,8 +93,16 @@ class Stg_Pivot : public Strategy {
     ChartParams _cparams(_tf, _Symbol);
     TradeParams _tparams;
     Strategy *_strat = new Stg_Pivot(_stg_params, _tparams, _cparams, "Pivot");
-    _strat.SetIndicator(new Indi_Pivot(_indi_params));
     return _strat;
+  }
+
+  /**
+   * Event on strategy's init.
+   */
+  void OnInit() {
+    Indi_Pivot_Params_Defaults _indi_pivot_defaults;
+    IndiPivotParams _indi_params(_indi_pivot_defaults, Get<ENUM_TIMEFRAMES>(STRAT_PARAM_TF));
+    SetIndicator(new Indi_Pivot(_indi_params));
   }
 
   /**

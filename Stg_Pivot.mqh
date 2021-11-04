@@ -7,23 +7,23 @@
 INPUT_GROUP("Pivot strategy: strategy params");
 INPUT float Pivot_LotSize = 0;                // Lot size
 INPUT int Pivot_SignalOpenMethod = 0;         // Signal open method
-INPUT float Pivot_SignalOpenLevel = 0.2f;     // Signal open level
-INPUT int Pivot_SignalOpenFilterMethod = 32;  // Signal open filter method
+INPUT float Pivot_SignalOpenLevel = 0.00f;    // Signal open level
+INPUT int Pivot_SignalOpenFilterMethod = 40;  // Signal open filter method
 INPUT int Pivot_SignalOpenFilterTime = 3;     // Signal open filter time (0-31)
 INPUT int Pivot_SignalOpenBoostMethod = 0;    // Signal open boost method
 INPUT int Pivot_SignalCloseMethod = 0;        // Signal close method
 INPUT int Pivot_SignalCloseFilter = 3;        // Signal close filter (-127-127)
-INPUT float Pivot_SignalCloseLevel = 0.2f;    // Signal close level
+INPUT float Pivot_SignalCloseLevel = 0.00f;   // Signal close level
 INPUT int Pivot_PriceStopMethod = 0;          // Price limit method
 INPUT float Pivot_PriceStopLevel = 2;         // Price limit level
-INPUT int Pivot_TickFilterMethod = -19;       // Tick filter method (0-255)
+INPUT int Pivot_TickFilterMethod = 32;        // Tick filter method (0-255)
 INPUT float Pivot_MaxSpread = 4.0;            // Max spread to trade (in pips)
 INPUT short Pivot_Shift = 1;                  // Shift
 INPUT float Pivot_OrderCloseLoss = 80;        // Order close loss
 INPUT float Pivot_OrderCloseProfit = 80;      // Order close profit
 INPUT int Pivot_OrderCloseTime = -30;         // Order close time in mins (>0) or bars (<0)
 INPUT_GROUP("Pivot strategy: Pivot indicator params");
-INPUT ENUM_PP_TYPE Pivot_Indi_Pivot_Type = PP_TOM_DEMARK;                  // Calculation method
+INPUT ENUM_PP_TYPE Pivot_Indi_Pivot_Type = PP_CAMARILLA;                   // Calculation method
 INPUT int Pivot_Indi_Pivot_Shift = 1;                                      // Shift
 INPUT ENUM_IDATA_SOURCE_TYPE Pivot_Indi_Pivot_SourceType = IDATA_BUILTIN;  // Source type
 
@@ -103,15 +103,17 @@ class Stg_Pivot : public Strategy {
    */
   bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method, float _level = 0.0f, int _shift = 0) {
     Indi_Pivot *_indi = GetIndicator();
+    Chart *_chart = (Chart *)_indi;
+    int _pp_shift = ::Pivot_Shift;  // @fixme
     bool _result =
-        _indi.GetFlag(INDI_ENTRY_FLAG_IS_VALID, _shift) && _indi.GetFlag(INDI_ENTRY_FLAG_IS_VALID, _shift + 3);
+        _indi.GetFlag(INDI_ENTRY_FLAG_IS_VALID, _pp_shift) && _indi.GetFlag(INDI_ENTRY_FLAG_IS_VALID, _pp_shift + 3);
     if (!_result) {
       // Returns false when indicator data is not valid.
       return false;
     }
     // IndicatorSignal _signals = _indi.GetSignals(4, _shift);
-    IndicatorDataEntry _entry = _indi[_shift];
-    MqlTick _tick = _indi.GetLastTick();
+    IndicatorDataEntry _entry = _indi[_pp_shift + 1];
+    float _curr_price = (float)_chart.GetPrice(PRICE_TYPICAL, _pp_shift);
     float _pp = _entry.GetValue<float>((int)INDI_PIVOT_PP);
     float _r1 = _entry.GetValue<float>((int)INDI_PIVOT_R1);
     float _r2 = _entry.GetValue<float>((int)INDI_PIVOT_R2);
@@ -124,23 +126,20 @@ class Stg_Pivot : public Strategy {
     switch (_cmd) {
       case ORDER_TYPE_BUY:
         // Buy signal.
-        //_result &= Close[_shift] < _pp && Close[_shift] > _s1;
-        //_result &= Close[_shift] < _s1 && Close[_shift] > _s2;
-        //_result &= _indi.Ask() < _s2 && _indi.Ask() > _s3;
-        _result &= (_tick.ask < _s1 - ((_s1 - _s2) / 2) && _tick.ask > _s2) ||
-                   (_tick.ask < _s2 - ((_s2 - _s3) / 2) && _tick.ask > _s3) ||
-                   (_tick.ask < _s3 - ((_s3 - _s4) / 2) && _tick.ask > _s4);
-        //_result &= _indi.IsIncreasing(1, 0, _shift);
-        _result &= _indi.IsIncByPct(_level, (int)INDI_PIVOT_PP, _shift, 1);
+        _result &= (_curr_price < _s1 - ((_s1 - _s2) / 2) && _curr_price > _s2) ||
+                   (_curr_price < _s2 - ((_s2 - _s3) / 2) && _curr_price > _s3) ||
+                   (_curr_price < _s3 - ((_s3 - _s4) / 2) && _curr_price > _s4);
+        _result &= _indi.IsDecByPct(-_level, (int)INDI_PIVOT_S1, _pp_shift, 4);
+        //_result &= _indi.IsIncreasing(1, (int)INDI_PIVOT_PP, _pp_shift);
         //_result &= _method > 0 ? _signals.CheckSignals(_method) : _signals.CheckSignalsAll(-_method);
         break;
       case ORDER_TYPE_SELL:
         // Sell signal.
-        _result &= (_indi.Ask() > _r1 + ((_r2 - _r1) / 2) && _indi.Ask() < _r2) ||
-                   (_indi.Ask() > _r2 + ((_r3 - _r2) / 2) && _indi.Ask() < _r3) ||
-                   (_indi.Ask() > _r3 + ((_r4 - _r3) / 2) && _indi.Ask() < _r4);
-        //_result &= _indi.IsDecreasing(1, 0, _shift);
-        _result &= _indi.IsDecByPct(-_level, (int)INDI_PIVOT_PP, _shift, 1);
+        _result &= (_curr_price > _r1 + ((_r2 - _r1) / 2) && _curr_price < _r2) ||
+                   (_curr_price > _r2 + ((_r3 - _r2) / 2) && _curr_price < _r3) ||
+                   (_curr_price > _r3 + ((_r4 - _r3) / 2) && _curr_price < _r4);
+        _result &= _indi.IsIncByPct(_level, (int)INDI_PIVOT_R1, _pp_shift, 4);
+        //_result &= _indi.IsDecreasing(1, (int)INDI_PIVOT_PP, _pp_shift);
         //_result &= _method > 0 ? _signals.CheckSignals(_method) : _signals.CheckSignalsAll(-_method);
         break;
     }

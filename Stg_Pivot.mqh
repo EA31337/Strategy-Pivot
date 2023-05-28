@@ -73,7 +73,7 @@ class Stg_Pivot : public Strategy {
   Stg_Pivot(StgParams &_sparams, TradeParams &_tparams, ChartParams &_cparams, string _name = "")
       : Strategy(_sparams, _tparams, _cparams, _name) {}
 
-  static Stg_Pivot *Init(ENUM_TIMEFRAMES _tf = NULL) {
+  static Stg_Pivot *Init(ENUM_TIMEFRAMES _tf = NULL, EA* _ea = NULL) {
     // Initialize strategy initial values.
     Stg_Pivot_Params_Defaults stg_pivot_defaults;
     StgParams _stg_params(stg_pivot_defaults);
